@@ -1,15 +1,17 @@
 import random
 import pandas as pd
 
-savedData = pd.read_csv("save.csv")
-
 def run():
+    savedData = pd.read_csv("save.csv", index_col=0)
+
     global totalTreasure
+    totalTreasure = 0
+    
     adjectives = {"heavy":0.13,"wooden":0.06,"metal":0.09,"chained":0.23,"eerie":0.18,"white":0.01,"black":0.09,"striped":0.05,"shiny":0.14,"dull":0.19,"bloody":0.3,"worn down":0.16,"charred":0.21,"broken":0.25,}
     alive = True
 
     # Let the games begin
-    print("Welcome to doors. The place where you make choices and fucking die.")
+    print("Welcome to doors. The place where you make choices and eventually die.")
     input("Press enter to continue...")
     name = input("What is your name?\n").lower()
 
@@ -19,11 +21,14 @@ def run():
         name = "miss ellemer"
 
     for i in range(len(savedData.index)):
-        if name == savedData.iloc[i]['name']:
+        if name == savedData.iloc[i]['user']:
+            print(savedData.iloc[i]['user'])
             totalTreasure = savedData.iloc[i]['total']
             idx = i
+            break
         else:
-            print('Name is not %s' % (savedData.iloc[i]['name']))
+            print('Name is not %s' % (savedData.iloc[i]['user']))
+            idx = i+1
 
 
     print("\nHello, %s" % name.capitalize())
@@ -69,5 +74,10 @@ def run():
         else:
             totalTreasure += treasure[choice-1]
 
-        savedData.iloc[idx, savedData.columns.get_loc('total')] = totalTreasure
+
+        try:
+            savedData.iloc[idx, savedData.columns.get_loc('total')] = totalTreasure
+        except:
+            savedData = savedData.append({'user':name,'total':totalTreasure}, ignore_index=True)
+    print(savedData)
     savedData.to_csv(r'save.csv')
